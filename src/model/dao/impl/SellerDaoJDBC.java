@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,13 +25,45 @@ public class SellerDaoJDBC implements SellerDao{
 	}
 
 	@Override
-	public void insert(Seller obj) {
-		// TODO Auto-generated method stub
+	public void insert(Seller objSeller) {
+		PreparedStatement ps = null;
+		try {
+		ps = conn.prepareStatement(
+		"INSERT INTO seller "
+		+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+		+ "VALUES "
+		+ "(?, ?, ?, ?, ?)",
+		Statement.RETURN_GENERATED_KEYS);
 		
+	ps.setString(1, objSeller.getName());
+	ps.setString(2, objSeller.getEmail());
+	ps.setDate(3, new java.sql.Date(objSeller.getBirthDate().getTime()));
+	ps.setDouble(4, objSeller.getBaseSalary());
+	ps.setInt(5, objSeller.getDepartment().getId());
+	
+	int rowsAffected = ps.executeUpdate();
+			if (rowsAffected > 0) {
+				ResultSet rs = ps.getGeneratedKeys();
+					if(rs.next()) {
+						int id = rs.getInt(1);
+						objSeller.setId(id);
+					}	
+				DB.closeResultSet(rs);
+			}
+			else {
+				throw new DbException("Inexpected error! No rows affected!");
+			}
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(ps);
+		}
 	}
 
 	@Override
-	public void update(Seller obj) {
+	public void update(Seller objSeller) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -78,7 +111,7 @@ public class SellerDaoJDBC implements SellerDao{
 		objSeller.setId(rs.getInt("Id"));
 		objSeller.setName(rs.getString("Name"));
 		objSeller.setEmail(rs.getString("Email"));
-		objSeller.setbaseSalary(rs.getDouble("BaseSalary"));
+		objSeller.setBaseSalary(rs.getDouble("BaseSalary"));
 		objSeller.setBirthDate(rs.getDate("BirthDate"));
 		objSeller.setDepartment(dep);
 		return objSeller;
