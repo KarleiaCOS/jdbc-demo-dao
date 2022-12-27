@@ -28,7 +28,7 @@ public class Program {
 			System.out.println(objSeller);
 		}
 		
-		System.out.println("\n=== Test 3: seller fyndByIdDepartment ===");
+		System.out.println("\n=== Test 3: seller fyndByAll ===");
 		listSeller = sellerDao.findAll();
 		for (Seller objSeller:listSeller) {
 			System.out.println(objSeller);
